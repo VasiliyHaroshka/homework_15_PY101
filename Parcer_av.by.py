@@ -3,17 +3,14 @@ from bs4 import BeautifulSoup
 from icecream import ic
 import pandas as pd
 import json
-import os
 
-
-# Задание 1
 
 def parcer() -> None:
     """
-    Функция дря парсинга названия, ссылок, цен, информации об автомобилях Toyota Land Cruiser Prado с сайта av.by.
-    (с учетом страниц). Сортирует автомобили по возрастанию цены.
-    Выводит на экран полученые данные и количество автомобилей.
-    Полученные данные функция записывает в файлы Land Cruiser Prado.xlsx и Land Cruiser Prado.json в текущей директории.
+    Function for parcins models, links, prices and other common information about cars Toyota Land Cruiser Prado from
+    site 'av.by'. This parcer suppurts multipages.
+    Results of parcing will be shown with ascend of prices.
+    Function creates files Land Cruiser Prado.xlsx and Land Cruiser Prado.json in local directory for record of results.
     :return: None
     """
     host: str = "https://cars.av.by"
@@ -23,7 +20,7 @@ def parcer() -> None:
         url: str = f"https://cars.av.by/filter?brands[0][brand]=1181&brands[0][model]=5731&page={page}"
         r = requests.get(url)
         if r.status_code == 200:
-            print(f"Статус код: {r.status_code}")
+            print(f"Status code: {r.status_code}")
             soup = BeautifulSoup(r.text, "html.parser")
             cars = soup.find_all("div", class_="listing-item")
 
@@ -36,7 +33,7 @@ def parcer() -> None:
 
                 try:
                     link = host + car.find("div", class_="listing-item__about").find("a").get("href")
-                except:
+                except Exception:
                     link = "-"
 
                 try:
@@ -57,9 +54,9 @@ def parcer() -> None:
 
     data.sort(key=lambda x: int(x[2].split()[0]))
     ic(data)
-    print(f"Всего найдено {len(data)} автомобилей.")
+    print(f"{len(data)} results have been found.")
 
-    headers = ["Модель", "Ссылка", "Цена", "Информация"]
+    headers = ["Model", "Link", "Price", "Common information"]
     df = pd.DataFrame(data, columns=headers)
     df.index += 1
     df.to_excel("Land Cruiser Prado.xlsx")
@@ -69,29 +66,6 @@ def parcer() -> None:
 
 
 parcer()
-print()
 
 
-# Задание №2
 
-def file_replace() -> None:
-    """
-    Функция запрашивает адрес директории для поиска формата файлов указаных пользователем
-    и перемещает их в другую директорию, которую укажет пользователь.
-    :return: None
-    """
-    location_1: str = input("Введите адрес директории для поиска: ")
-    form: str = input("Введите формат файлов для перемещения (напр.: '.txt'): ")
-    location_2: str = input("Введите адрес директории для перемещения туда файлов: ")
-    counter: int = 0
-    for file in os.listdir(location_1):
-        if os.path.splitext(file)[1] == form:
-            os.replace(location_1 + "\\" + file, location_2 + "\\" + file)
-            print(f"Файл {file} из папки: {location_1}\ перемещен в папку: {location_2}\.")
-            counter += 1
-        else:
-            pass
-    print(f"Всего перемещено {counter} файлов.")
-
-
-file_replace()
